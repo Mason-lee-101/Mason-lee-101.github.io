@@ -1,2 +1,5 @@
 # Mason-lee-101.github.io
-idk
+
+My personal blog.
+
+`https://mason-lee-101.github.io/`

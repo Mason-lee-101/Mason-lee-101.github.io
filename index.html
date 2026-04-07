@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mason Lee</title>
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <img class="brand-mark" src="icon.png" alt="" width="128" height="128">
+        <span>Mason Lee</span>
+      </a>
+      <div class="topbar-right">
+        <nav class="nav" aria-label="Main tabs" role="tablist">
+          <button class="tab-button is-current" id="tab-home" type="button" data-tab="home" role="tab" aria-selected="true" aria-controls="panel-home">
+            Home
+          </button>
+          <button class="tab-button" id="tab-about" type="button" data-tab="about" role="tab" aria-selected="false" aria-controls="panel-about">
+            About
+          </button>
+          <button class="tab-button" id="tab-blog" type="button" data-tab="blog" role="tab" aria-selected="false" aria-controls="panel-blog">
+            Blog
+          </button>
+        </nav>
+        <button class="toggle-button" id="theme-toggle" type="button">Dark mode</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="tab-panel" id="panel-home" data-panel="home" role="tabpanel" aria-labelledby="tab-home">
+        <h1>Welcome to my site</h1>
+        <p class="intro">
+          This is my homepage. The blog is now part of this page as another tab.
+        </p>
+      </section>
+
+      <section class="tab-panel" id="panel-about" data-panel="about" role="tabpanel" aria-labelledby="tab-about" hidden>
+        <h2>About</h2>
+        <p>
+          umm, I'm Mason. 
+        </p>
+      </section>
+
+      <section class="tab-panel" id="panel-blog" data-panel="blog" role="tabpanel" aria-labelledby="tab-blog" hidden>
+        <h2>Blog</h2>
+        <div id="blog-list-view">
+          <div class="post-list" id="post-list">
+            <p class="status-message">Loading posts...</p>
+          </div>
+        </div>
+
+        <div id="blog-post-view" hidden>
+          <p><a class="back-link" href="index.html#blog">Back to blog</a></p>
+          <div id="post-view">
+            <p class="status-message">Loading post...</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>"Mason's blog thing"</p>
+    </footer>
+  </div>
+
+  <script src="blogs_posts/posts-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

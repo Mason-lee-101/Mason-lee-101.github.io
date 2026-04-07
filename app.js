@@ -1,0 +1,465 @@
+const themeToggle = document.getElementById("theme-toggle");
+const postList = document.getElementById("post-list");
+const postView = document.getElementById("post-view");
+const blogListView = document.getElementById("blog-list-view");
+const blogPostView = document.getElementById("blog-post-view");
+const tabButtons = Array.from(document.querySelectorAll("[data-tab]"));
+const tabPanels = Array.from(document.querySelectorAll("[data-panel]"));
+const fallbackPosts = Array.isArray(window.BLOG_POSTS_FALLBACK) ? window.BLOG_POSTS_FALLBACK : [];
+const savedTheme = localStorage.getItem("theme");
+
+if (themeToggle && savedTheme === "dark") {
+  document.body.dataset.theme = "dark";
+  themeToggle.textContent = "Light mode";
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const isDark = document.body.dataset.theme === "dark";
+
+    if (isDark) {
+      delete document.body.dataset.theme;
+      localStorage.setItem("theme", "light");
+      themeToggle.textContent = "Dark mode";
+    } else {
+      document.body.dataset.theme = "dark";
+      localStorage.setItem("theme", "dark");
+      themeToggle.textContent = "Light mode";
+    }
+  });
+}
+
+function setActiveTab(tabName, updateHash = true) {
+  if (!tabButtons.length || !tabPanels.length) {
+    return;
+  }
+
+  const nextTab = tabPanels.some((panel) => panel.dataset.panel === tabName) ? tabName : "home";
+  const selectedPost = new URLSearchParams(window.location.search).get("post");
+
+  tabButtons.forEach((button) => {
+    const isActive = button.dataset.tab === nextTab;
+    button.classList.toggle("is-current", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+
+  tabPanels.forEach((panel) => {
+    panel.hidden = panel.dataset.panel !== nextTab;
+  });
+
+  if (updateHash || nextTab !== "blog" || !selectedPost) {
+    setBlogView("list");
+  }
+
+  if (updateHash) {
+    const nextUrl = nextTab === "home"
+      ? window.location.pathname
+      : `${window.location.pathname}#${nextTab}`;
+    history.replaceState(null, "", nextUrl);
+  }
+}
+
+if (tabButtons.length) {
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setActiveTab(button.dataset.tab);
+    });
+  });
+
+  window.addEventListener("hashchange", () => {
+    setActiveTab(window.location.hash.slice(1), false);
+  });
+
+  const initialTab = new URLSearchParams(window.location.search).get("post")
+    ? "blog"
+    : window.location.hash.slice(1);
+
+  setActiveTab(initialTab, false);
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function isExternalUrl(url) {
+  return /^(?:[a-z]+:|#|\/)/i.test(url);
+}
+
+function resolveMarkdownUrl(url, basePath) {
+  if (!url || isExternalUrl(url) || !basePath) {
+    return url;
+  }
+
+  return `${basePath}${url}`;
+}
+
+function parseInlineMarkdown(text, basePath = "") {
+  const escaped = escapeHtml(text);
+
+  return escaped
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, url) => {
+      const resolvedUrl = resolveMarkdownUrl(url, basePath);
+      return `<img src="${resolvedUrl}" alt="${alt}" class="post-image">`;
+    })
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
+      const resolvedUrl = resolveMarkdownUrl(url, basePath);
+      return `<a href="${resolvedUrl}">${label}</a>`;
+    })
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+}
+
+function renderMarkdown(markdown, basePath = "") {
+  const lines = markdown.replace(/\r/g, "").split("\n");
+  const html = [];
+  let paragraph = [];
+  let listItems = [];
+
+  function flushParagraph() {
+    if (!paragraph.length) {
+      return;
+    }
+
+    html.push(`<p>${parseInlineMarkdown(paragraph.join(" "), basePath)}</p>`);
+    paragraph = [];
+  }
+
+  function flushList() {
+    if (!listItems.length) {
+      return;
+    }
+
+    const items = listItems
+      .map((item) => `<li>${parseInlineMarkdown(item, basePath)}</li>`)
+      .join("");
+    html.push(`<ul>${items}</ul>`);
+    listItems = [];
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+
+    if (trimmed.startsWith("- ")) {
+      flushParagraph();
+      listItems.push(trimmed.slice(2).trim());
+      continue;
+    }
+
+    flushList();
+
+    if (trimmed.startsWith("### ")) {
+      flushParagraph();
+      html.push(`<h4>${parseInlineMarkdown(trimmed.slice(4).trim(), basePath)}</h4>`);
+      continue;
+    }
+
+    if (trimmed.startsWith("## ")) {
+      flushParagraph();
+      html.push(`<h3>${parseInlineMarkdown(trimmed.slice(3).trim(), basePath)}</h3>`);
+      continue;
+    }
+
+    if (trimmed.startsWith("# ")) {
+      flushParagraph();
+      html.push(`<h2>${parseInlineMarkdown(trimmed.slice(2).trim(), basePath)}</h2>`);
+      continue;
+    }
+
+    paragraph.push(trimmed);
+  }
+
+  flushParagraph();
+  flushList();
+
+  return html.join("");
+}
+
+function getMeaningfulLines(markdown) {
+  return markdown
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+function getPreviewLines(markdown) {
+  return getMeaningfulLines(markdown).slice(0, 3);
+}
+
+function getPostTitle(markdown, fallbackTitle) {
+  const titleLine = getMeaningfulLines(markdown).find((line) => line.startsWith("# "));
+  return titleLine ? titleLine.slice(2).trim() : fallbackTitle;
+}
+
+function getPostDateValue(markdown) {
+  const dateLine = getMeaningfulLines(markdown).find((line) => /^date:/i.test(line));
+
+  if (!dateLine) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  const rawDate = dateLine.replace(/^date:\s*/i, "").trim();
+  const parsedDate = Date.parse(rawDate);
+
+  if (!Number.isNaN(parsedDate)) {
+    return parsedDate;
+  }
+
+  const usDateMatch = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+
+  if (!usDateMatch) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  const [, month, day, year] = usDateMatch;
+  return new Date(Number(year), Number(month) - 1, Number(day)).getTime();
+}
+
+function normalizeFolderRecord(record) {
+  const folder = record.folder || record.name || "";
+  const file = record.file || record.entry || "";
+
+  return {
+    folder,
+    file,
+    markdown: record.markdown || ""
+  };
+}
+
+function shouldIgnorePostFolder(folder) {
+  return String(folder).trim().toLowerCase() === "template";
+}
+
+function getFallbackFolderPosts() {
+  return fallbackPosts
+    .map(normalizeFolderRecord)
+    .filter((post) => post.folder && post.file)
+    .filter((post) => !shouldIgnorePostFolder(post.folder))
+    .sort((a, b) => a.folder.localeCompare(b.folder));
+}
+
+function inferGitHubRepo() {
+  const { hostname, pathname } = window.location;
+
+  if (!hostname.endsWith(".github.io")) {
+    return null;
+  }
+
+  const owner = hostname.replace(/\.github\.io$/, "");
+  const pathParts = pathname.split("/").filter(Boolean);
+  const repo = pathParts.length > 0 ? pathParts[0] : `${owner}.github.io`;
+
+  return { owner, repo };
+}
+
+async function discoverFolderEntry(repoInfo, folder) {
+  const response = await fetch(
+    `https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/contents/blogs_posts/${encodeURIComponent(folder)}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`Could not load folder ${folder}.`);
+  }
+
+  const items = await response.json();
+  const markdownFile = items.find((item) => item.type === "file" && item.name.toLowerCase().endsWith(".md"));
+
+  if (!markdownFile) {
+    return null;
+  }
+
+  return {
+    folder,
+    file: markdownFile.name
+  };
+}
+
+async function loadManifest() {
+  try {
+    const repoInfo = inferGitHubRepo();
+
+    if (repoInfo) {
+      const response = await fetch(
+        `https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/contents/blogs_posts`
+      );
+
+      if (!response.ok) {
+        throw new Error("Could not load blog folder from GitHub.");
+      }
+
+      const items = await response.json();
+      const folders = items
+        .filter((item) => item.type === "dir")
+        .filter((item) => !shouldIgnorePostFolder(item.name))
+        .map((item) => item.name)
+        .sort((a, b) => a.localeCompare(b));
+
+      const records = await Promise.all(
+        folders.map((folder) => discoverFolderEntry(repoInfo, folder))
+      );
+
+      return records.filter(Boolean);
+    }
+  } catch (error) {
+    const fallbackRecords = getFallbackFolderPosts();
+
+    if (fallbackRecords.length > 0) {
+      return fallbackRecords.map(({ folder, file }) => ({ folder, file }));
+    }
+  }
+
+  const fallbackRecords = getFallbackFolderPosts();
+
+  if (fallbackRecords.length > 0) {
+    return fallbackRecords.map(({ folder, file }) => ({ folder, file }));
+  }
+
+  throw new Error("No dynamic post source is available.");
+}
+
+async function loadMarkdownFile(folderRecord) {
+  const { folder, file } = folderRecord;
+
+  try {
+    const response = await fetch(`blogs_posts/${folder}/${file}`);
+
+    if (!response.ok) {
+      throw new Error(`Could not load ${folder}/${file}`);
+    }
+
+    return await response.text();
+  } catch (error) {
+    const fallbackPost = getFallbackFolderPosts().find(
+      (post) => post.folder === folder && post.file === file
+    );
+
+    if (fallbackPost) {
+      return fallbackPost.markdown;
+    }
+
+    throw error;
+  }
+}
+
+function renderPreviewCard(folderRecord, markdown) {
+  const { folder } = folderRecord;
+  const lines = getPreviewLines(markdown);
+  const title = getPostTitle(markdown, folder);
+  const card = document.createElement("article");
+  card.className = "preview-card";
+
+  const linesHtml = lines
+    .map((line) => `<p class="preview-line">${parseInlineMarkdown(line.replace(/^#\s+/, ""))}</p>`)
+    .join("");
+
+  card.innerHTML = `
+    <a class="preview-link" href="index.html?post=${encodeURIComponent(folder)}#blog" aria-label="Open ${escapeHtml(title)}">
+      ${linesHtml}
+    </a>
+  `;
+
+  return card;
+}
+
+function setBlogView(mode) {
+  if (!blogListView || !blogPostView) {
+    return;
+  }
+
+  const showPost = mode === "post";
+  blogListView.hidden = showPost;
+  blogPostView.hidden = !showPost;
+}
+
+async function loadBlogList() {
+  if (!postList) {
+    return;
+  }
+
+  try {
+    const manifest = await loadManifest();
+
+    if (manifest.length === 0) {
+      postList.innerHTML = '<p class="status-message">No posts yet.</p>';
+      return;
+    }
+
+    const loadedPosts = await Promise.all(
+      manifest.map(async (record) => {
+        const markdown = await loadMarkdownFile(record);
+        return {
+          record,
+          markdown,
+          dateValue: getPostDateValue(markdown)
+        };
+      })
+    );
+
+    loadedPosts.sort((a, b) => {
+      if (b.dateValue !== a.dateValue) {
+        return b.dateValue - a.dateValue;
+      }
+
+      return a.record.folder.localeCompare(b.record.folder);
+    });
+
+    const previews = loadedPosts.map(({ record, markdown }) => renderPreviewCard(record, markdown));
+
+    postList.innerHTML = "";
+    previews.forEach((preview) => postList.appendChild(preview));
+  } catch (error) {
+    postList.innerHTML = '<p class="status-message">Posts could not be loaded.</p>';
+    console.error(error);
+  }
+}
+
+async function loadSinglePost() {
+  if (!postView) {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const folder = params.get("post");
+
+  if (!folder) {
+    setBlogView("list");
+    return;
+  }
+
+  try {
+    setBlogView("post");
+    setActiveTab("blog", false);
+    const manifest = await loadManifest();
+    const record = manifest.find((item) => item.folder === folder);
+
+    if (!record) {
+      throw new Error(`Could not find post folder ${folder}.`);
+    }
+
+    const markdown = await loadMarkdownFile(record);
+    const title = getPostTitle(markdown, folder);
+    const basePath = `blogs_posts/${record.folder}/`;
+
+    document.title = `${title} | Mason Lee`;
+    postView.innerHTML = `
+      <div class="post-content">${renderMarkdown(markdown, basePath)}</div>
+    `;
+  } catch (error) {
+    setBlogView("post");
+    postView.innerHTML = '<p class="status-message">This post could not be loaded.</p>';
+    console.error(error);
+  }
+}
+
+loadBlogList();
+loadSinglePost();
