@@ -1,73 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mason Lee</title>
-  <link rel="icon" href="icon.png" type="image/png">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <a class="brand" href="./">
-        <img class="brand-mark" src="icon.png" alt="" width="128" height="128">
-        <span>Mason Lee</span>
-      </a>
-      <div class="topbar-right">
-        <nav class="nav" aria-label="Main tabs" role="tablist">
-          <button class="tab-button is-current" id="tab-home" type="button" data-tab="home" role="tab" aria-selected="true" aria-controls="panel-home">
-            Home
-          </button>
-          <button class="tab-button" id="tab-blog" type="button" data-tab="blog" role="tab" aria-selected="false" aria-controls="panel-blog">
-            Blog
-          </button>
-        </nav>
-        <button class="toggle-button" id="theme-toggle" type="button">Dark mode</button>
-      </div>
-    </header>
+---
+layout: default
+title: Home
+---
 
-    <main>
-      <section class="tab-panel" id="panel-home" data-panel="home" role="tabpanel" aria-labelledby="tab-home">
-        <h1>Welcome to my site</h1>
-        <p class="intro">
-          This is my homepage. I am really bad at building a website.
-        </p>
-        <h2 class="home-section-title">About</h2>
-        <p>
-          umm, I'm Mason.
-        </p>
-        <h2 class="home-section-title">Social Media</h2>
-        <ul class="social-links" aria-label="Social accounts">
-          <li><a href="https://www.youtube.com/@Mason_Lee_101" target="_blank" rel="noopener noreferrer">YouTube</a></li>
-          <li><a href="https://x.com/Mason_Lee_101" target="_blank" rel="noopener noreferrer">X</a></li>
-          <li><a href="https://www.linkedin.com/in/mason-lee-101-/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-          <li><a href="https://www.instagram.com/mason_lee.101/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-        </ul>
-      </section>
+<section id="home">
+  <h1>Welcome to my site</h1>
+  <p class="intro">
+    This is my homepage. I am really bad at building a website.
+  </p>
+  <h2 class="home-section-title">About</h2>
+  <p>
+    umm, I'm Mason.
+  </p>
+  <h2 class="home-section-title">Social Media</h2>
+  <ul class="social-links" aria-label="Social accounts">
+    <li><a href="https://www.youtube.com/@Mason_Lee_101" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+    <li><a href="https://x.com/Mason_Lee_101" target="_blank" rel="noopener noreferrer">X</a></li>
+    <li><a href="https://www.linkedin.com/in/mason-lee-101-/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+    <li><a href="https://www.instagram.com/mason_lee.101/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+  </ul>
+</section>
 
-      <section class="tab-panel" id="panel-blog" data-panel="blog" role="tabpanel" aria-labelledby="tab-blog" hidden>
-        <h2 id="blog-heading">Blog</h2>
-        <div id="blog-list-view">
-          <div class="post-list" id="post-list">
-            <p class="status-message">Loading posts...</p>
-          </div>
-        </div>
-
-        <div id="blog-post-view" hidden>
-          <div id="post-view">
-            <p class="status-message">Loading post...</p>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <p>"Mason's blog thing"</p>
-    </footer>
+<section id="blog">
+  <h2>Blog</h2>
+  <div class="post-list">
+    {% assign blog_pages = site.pages | where: "layout", "post" | sort: "date" | reverse %}
+    {% if blog_pages.size > 0 %}
+      {% for post in blog_pages %}
+        {% assign publish_date = post.date | default: post.Date %}
+        <article class="preview-card">
+          <a class="preview-link" href="{{ post.url | relative_url }}" aria-label="Open {{ post.title | escape }}">
+            <p class="preview-line"><strong>{{ post.title }}</strong></p>
+            {% if post.description %}
+              <p class="preview-line">{{ post.description }}</p>
+            {% endif %}
+            {% if publish_date %}
+              <p class="preview-date">publish date: {{ publish_date | date: "%m/%d/%Y" }}</p>
+            {% endif %}
+          </a>
+        </article>
+      {% endfor %}
+    {% else %}
+      <p class="status-message">No posts yet.</p>
+    {% endif %}
   </div>
-
-  <script src="blogs_posts/posts-data.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+</section>

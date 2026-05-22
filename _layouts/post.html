@@ -1,0 +1,17 @@
+---
+layout: default
+---
+
+<section class="post-shell">
+  <article>
+    <h1 class="post-title">{{ page.title }}</h1>
+    {% assign publish_date = page.date | default: page.Date %}
+    {% if publish_date %}
+      <p class="post-meta">publish date: {{ publish_date | date: "%m/%d/%Y" }}</p>
+    {% endif %}
+    <p class="post-back"><a class="back-link" href="{{ '/#blog' | relative_url }}">Back to blog</a></p>
+    <div class="post-content">
+      {{ content }}
+    </div>
+  </article>
+</section>

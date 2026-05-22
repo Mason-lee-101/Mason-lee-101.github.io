@@ -1,0 +1,9 @@
+title: Mason Lee
+description: Mason's blog thing
+url: ""
+baseurl: ""
+markdown: kramdown
+plugins:
+  - jekyll-feed
+exclude:
+  - blogs_posts/Template

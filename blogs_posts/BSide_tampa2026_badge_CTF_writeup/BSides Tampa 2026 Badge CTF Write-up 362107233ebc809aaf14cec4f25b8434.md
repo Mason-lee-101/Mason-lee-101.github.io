@@ -1,6 +1,7 @@
 ---
+layout: post
 title: BSides Tampa 2026 Badge CTF Write-up
-Date: 5/21/2026
+date: 2026-05-21
 description: This write-up is for the BSides Tampa 2026 Badge CTF.
 ---
 # Overview
@@ -539,4 +540,3 @@ CHALLENGE `TechnoRune`
 284173569 `SyntheticOracle`
 
 CHALLENGE13 `Josh Grose's email`
-

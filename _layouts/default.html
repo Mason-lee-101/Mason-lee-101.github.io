@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+  <link rel="icon" href="{{ '/icon.png' | relative_url }}" type="image/png">
+  <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
+  {% feed_meta %}
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="{{ '/' | relative_url }}">
+        <img class="brand-mark" src="{{ '/icon.png' | relative_url }}" alt="" width="128" height="128">
+        <span>{{ site.title }}</span>
+      </a>
+      <div class="topbar-right">
+        <nav class="nav" aria-label="Main navigation">
+          <a class="nav-link{% if page.url == '/' %} is-current{% endif %}" href="{{ '/' | relative_url }}">Home</a>
+          <a class="nav-link{% if page.layout == 'post' %} is-current{% endif %}" href="{{ '/#blog' | relative_url }}">Blog</a>
+        </nav>
+        <button class="toggle-button" id="theme-toggle" type="button">Dark mode</button>
+      </div>
+    </header>
+
+    <main>
+      {{ content }}
+    </main>
+
+    <footer>
+      <p>"Mason's blog thing"</p>
+    </footer>
+  </div>
+
+  <script src="{{ '/app.js' | relative_url }}"></script>
+</body>
+</html>
