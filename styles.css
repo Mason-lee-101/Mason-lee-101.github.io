@@ -37,7 +37,7 @@ a {
 }
 
 .page {
-  width: min(720px, calc(100% - 2rem));
+  width: min(1100px, calc(100% - 2rem));
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
 }
@@ -114,14 +114,16 @@ a {
 main {
   display: grid;
   gap: 1rem;
+  width: 100%;
 }
 
 section {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 1.5rem;
   transition: background-color 0.2s ease, border-color 0.2s ease;
+  min-width: 0;
 }
 
 h1,
@@ -151,6 +153,7 @@ h4 {
 p,
 li {
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .intro,
@@ -230,12 +233,25 @@ li {
   padding-bottom: 1.5rem;
 }
 
+.post-meta {
+  margin-bottom: 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .post-content > *:last-child {
   margin-bottom: 0;
 }
 
 .post-content ul {
   padding-left: 1.25rem;
+}
+
+.post-content table,
+.post-content pre {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .post-content code {
@@ -261,13 +277,28 @@ footer {
 }
 
 @media (max-width: 560px) {
+  .page {
+    width: min(100% - 1rem, 1100px);
+    padding-top: 1rem;
+  }
+
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+    margin-bottom: 1rem;
   }
 
   .topbar-right {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .nav {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  section {
+    padding: 1rem;
   }
 }

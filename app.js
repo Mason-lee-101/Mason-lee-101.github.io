@@ -200,7 +200,24 @@ function getMeaningfulLines(markdown) {
 }
 
 function getPreviewLines(markdown) {
-  return getMeaningfulLines(markdown).slice(0, 3);
+  const description = getPostDescription(markdown);
+
+  if (description) {
+    return [getPostTitle(markdown, ""), description].filter(Boolean);
+  }
+
+  return getMeaningfulLines(removePostMetadata(markdown)).slice(0, 3);
+}
+
+function removePostMetadata(markdown) {
+  return markdown
+    .replace(/\r/g, "")
+    .split("\n")
+    .filter((line) => {
+      const trimmed = line.trim();
+      return !/^(date|description):/i.test(trimmed);
+    })
+    .join("\n");
 }
 
 function getPostTitle(markdown, fallbackTitle) {
@@ -208,14 +225,66 @@ function getPostTitle(markdown, fallbackTitle) {
   return titleLine ? titleLine.slice(2).trim() : fallbackTitle;
 }
 
-function getPostDateValue(markdown) {
+function getPostDescription(markdown) {
+  const descriptionLine = getMeaningfulLines(markdown).find((line) => /^description:/i.test(line));
+
+  if (!descriptionLine) {
+    return "";
+  }
+
+  return descriptionLine.replace(/^description:\s*/i, "").trim();
+}
+
+function getRawPostDate(markdown) {
   const dateLine = getMeaningfulLines(markdown).find((line) => /^date:/i.test(line));
 
   if (!dateLine) {
+    return "";
+  }
+
+  return dateLine.replace(/^date:\s*/i, "").trim();
+}
+
+function formatDateParts(year, month, day) {
+  return [
+    String(month).padStart(2, "0"),
+    String(day).padStart(2, "0"),
+    String(year)
+  ].join("/");
+}
+
+function formatPostDate(rawDate) {
+  if (!rawDate) {
+    return "";
+  }
+
+  const usDateMatch = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+
+  if (usDateMatch) {
+    const [, month, day, year] = usDateMatch;
+    return formatDateParts(year, month, day);
+  }
+
+  const parsedDate = new Date(rawDate);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "";
+  }
+
+  return formatDateParts(
+    parsedDate.getFullYear(),
+    parsedDate.getMonth() + 1,
+    parsedDate.getDate()
+  );
+}
+
+function getPostDateValue(markdown) {
+  const rawDate = getRawPostDate(markdown);
+
+  if (!rawDate) {
     return Number.NEGATIVE_INFINITY;
   }
 
-  const rawDate = dateLine.replace(/^date:\s*/i, "").trim();
   const parsedDate = Date.parse(rawDate);
 
   if (!Number.isNaN(parsedDate)) {
@@ -232,6 +301,46 @@ function getPostDateValue(markdown) {
   return new Date(Number(year), Number(month) - 1, Number(day)).getTime();
 }
 
+async function loadRepoPublishDate(folderRecord) {
+  const repoInfo = inferGitHubRepo();
+
+  if (!repoInfo || !folderRecord.file) {
+    return "";
+  }
+
+  const postPath = `blogs_posts/${folderRecord.folder}/${folderRecord.file}`;
+  const response = await fetch(
+    `https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/commits?path=${encodeURIComponent(postPath)}&per_page=100`
+  );
+
+  if (!response.ok) {
+    return "";
+  }
+
+  const commits = await response.json();
+
+  if (!Array.isArray(commits) || commits.length === 0) {
+    return "";
+  }
+
+  const firstCommit = commits[commits.length - 1];
+  return formatPostDate(firstCommit?.commit?.author?.date);
+}
+
+async function getPublishDate(folderRecord, markdown) {
+  try {
+    const repoPublishDate = await loadRepoPublishDate(folderRecord);
+
+    if (repoPublishDate) {
+      return repoPublishDate;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  return formatPostDate(getRawPostDate(markdown));
+}
+
 function normalizeFolderRecord(record) {
   const folder = record.folder || record.name || "";
   const file = record.file || record.entry || "";
@@ -239,6 +348,7 @@ function normalizeFolderRecord(record) {
   return {
     folder,
     file,
+    headerFile: record.headerFile || record.header || "",
     markdown: record.markdown || ""
   };
 }
@@ -279,7 +389,11 @@ async function discoverFolderEntry(repoInfo, folder) {
   }
 
   const items = await response.json();
-  const markdownFile = items.find((item) => item.type === "file" && item.name.toLowerCase().endsWith(".md"));
+  const headerFile = items.find((item) => item.type === "file" && item.name.toLowerCase() === "header.md");
+  const markdownFile = items.find((item) => {
+    const name = item.name.toLowerCase();
+    return item.type === "file" && name.endsWith(".md") && name !== "header.md";
+  });
 
   if (!markdownFile) {
     return null;
@@ -287,7 +401,8 @@ async function discoverFolderEntry(repoInfo, folder) {
 
   return {
     folder,
-    file: markdownFile.name
+    file: markdownFile.name,
+    headerFile: headerFile?.name || ""
   };
 }
 
@@ -321,14 +436,14 @@ async function loadManifest() {
     const fallbackRecords = getFallbackFolderPosts();
 
     if (fallbackRecords.length > 0) {
-      return fallbackRecords.map(({ folder, file }) => ({ folder, file }));
+      return fallbackRecords.map(({ folder, file, headerFile }) => ({ folder, file, headerFile }));
     }
   }
 
   const fallbackRecords = getFallbackFolderPosts();
 
   if (fallbackRecords.length > 0) {
-    return fallbackRecords.map(({ folder, file }) => ({ folder, file }));
+    return fallbackRecords.map(({ folder, file, headerFile }) => ({ folder, file, headerFile }));
   }
 
   throw new Error("No dynamic post source is available.");
@@ -356,6 +471,32 @@ async function loadMarkdownFile(folderRecord) {
 
     throw error;
   }
+}
+
+async function loadHeaderFile(folderRecord) {
+  const { folder, headerFile } = folderRecord;
+
+  if (!headerFile) {
+    return "";
+  }
+
+  try {
+    const response = await fetch(`blogs_posts/${folder}/${headerFile}`);
+
+    if (!response.ok) {
+      return "";
+    }
+
+    return await response.text();
+  } catch (error) {
+    return "";
+  }
+}
+
+async function loadPostMarkdown(folderRecord) {
+  const header = await loadHeaderFile(folderRecord);
+  const markdown = await loadMarkdownFile(folderRecord);
+  return header ? `${header.trim()}\n\n${markdown}` : markdown;
 }
 
 function renderPreviewCard(folderRecord, markdown) {
@@ -403,7 +544,7 @@ async function loadBlogList() {
 
     const loadedPosts = await Promise.all(
       manifest.map(async (record) => {
-        const markdown = await loadMarkdownFile(record);
+        const markdown = await loadPostMarkdown(record);
         return {
           record,
           markdown,
@@ -453,13 +594,18 @@ async function loadSinglePost() {
       throw new Error(`Could not find post folder ${folder}.`);
     }
 
-    const markdown = await loadMarkdownFile(record);
+    const markdown = await loadPostMarkdown(record);
     const title = getPostTitle(markdown, folder);
     const basePath = `blogs_posts/${record.folder}/`;
+    const publishDate = await getPublishDate(record, markdown);
+    const publishDateHtml = publishDate
+      ? `<p class="post-meta">publish date: ${publishDate}</p>`
+      : "";
 
     document.title = `${title} | Mason Lee`;
     postView.innerHTML = `
-      <div class="post-content">${renderMarkdown(markdown, basePath)}</div>
+      ${publishDateHtml}
+      <div class="post-content">${renderMarkdown(removePostMetadata(markdown), basePath)}</div>
     `;
   } catch (error) {
     setBlogView("post");

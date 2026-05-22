@@ -1,3 +1,3 @@
-# Title
-Date: 04/04/2026
-description:  idk
+# First Section
+
+Start the blog post here. Put the title, date, and description in header.md.

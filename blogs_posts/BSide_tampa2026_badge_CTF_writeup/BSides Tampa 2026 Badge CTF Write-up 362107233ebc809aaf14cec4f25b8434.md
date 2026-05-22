@@ -1,5 +1,3 @@
-# BSides Tampa 2026 Badge CTF Write-up
-
 # Overview
 
 This write-up is for the BSides Tampa 2026 Badge CTF.
@@ -536,5 +534,4 @@ CHALLENGE `TechnoRune`
 284173569 `SyntheticOracle`
 
 CHALLENGE13 `Josh Grose's email`
-
 
