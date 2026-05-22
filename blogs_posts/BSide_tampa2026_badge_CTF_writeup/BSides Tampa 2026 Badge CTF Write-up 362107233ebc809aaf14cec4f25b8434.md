@@ -13,8 +13,11 @@ YouTube video, soon I promise
 
 Overall information about the Badge CTF for Bsides Tampa 2026 [BSides Badge CTF Page](https://bsidestampa.net/activities/badge-challenge)
 
+2026 Site Note
+
 ![Badge_CTF_Website_Note.png](./Pictures/Badge_CTF_Website_Note.png)
 
+Front of the badge
 
 ![Overall_badge.jpg](./Pictures/Overall_badge.jpg)
 
@@ -68,7 +71,7 @@ For real this time, we can finally decode what on the land-yard.
 
 laniard = `Joshua Grose was here`
 
-> Joshua Grose is the person who made this CTF and the crazy-looking badge. 
+> NOTE: Joshua Grose is the person who made this CTF and the crazy-looking badge. 
 
 Welp this was a red herring. Lets look at the main badge.
 

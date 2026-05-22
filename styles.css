@@ -9,6 +9,10 @@
   --code-block-bg: #f6f8fa;
   --code-border: #d8dee8;
   --code-text: #1f2328;
+  --note-bg: #eef6ff;
+  --note-border: #3f7fbf;
+  --note-text: #102a43;
+  --note-link: #074f9e;
 }
 
 body[data-theme="dark"] {
@@ -22,6 +26,10 @@ body[data-theme="dark"] {
   --code-block-bg: #0b0f14;
   --code-border: #3f4754;
   --code-text: #e8edf2;
+  --note-bg: #172131;
+  --note-border: #8fc3ff;
+  --note-text: #edf5ff;
+  --note-link: #a8d0ff;
 }
 
 * {
@@ -286,6 +294,36 @@ li {
 
 .post-content ul {
   padding-left: 1.25rem;
+}
+
+.post-content blockquote {
+  background: var(--note-bg);
+  border: 1px solid var(--note-border);
+  border-left-width: 5px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  color: var(--note-text);
+  margin: 1.25rem 0;
+  padding: 1rem 1.1rem 1rem 1.2rem;
+}
+
+.post-content blockquote p,
+.post-content blockquote li {
+  color: inherit;
+}
+
+.post-content blockquote a {
+  color: var(--note-link);
+  font-weight: 600;
+}
+
+.post-content blockquote > *:last-child {
+  margin-bottom: 0;
+}
+
+.post-content blockquote code {
+  background: rgba(127, 127, 127, 0.18);
+  color: inherit;
 }
 
 .post-content img,
