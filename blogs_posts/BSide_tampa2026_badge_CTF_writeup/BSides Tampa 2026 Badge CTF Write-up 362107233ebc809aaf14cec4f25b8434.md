@@ -307,7 +307,9 @@ Another spot to look at was this div block.
 
 The first thing I tried was to Rot13 decode it, and it showed the answer, but it was reversed, which was an easy fix.
 
-```AnabPbqrk -{Rot13}-> xedoConaN -{reverse}-> NanoCodex ```
+```
+AnabPbqrk -{Rot13}-> xedoConaN -{reverse}-> NanoCodex
+```
 
 ## Challenge 7
 
@@ -416,7 +418,9 @@ The wiring will look like this:
 
 Command that AI gave me to dump the firmware
 
-```avrdude -p t1616 -c serialupdi -P /dev/ttyUSB0 -U flash:r:dump.bin:r```
+```
+avrdude -p t1616 -c serialupdi -P /dev/ttyUSB0 -U flash:r:dump.bin:r
+```
 
 Looking in the dump file with Ghidra (the only thing that had AVR board support, TAKE THAT IDA, BINJA), the only string in the WHOLE DUMP FILE was the answer to the challenge:  `OmegaTemple`
 
@@ -442,7 +446,9 @@ RRROOOYYYGGGBBBPPP
 ```
 The top and bottom rows repeat, which suggests they are the key. The key gives us the color order:
 
-```R O Y G B P```
+```
+R O Y G B P
+```
 
 Since there are six colors, we can treat them as base-6 digits:
 
@@ -467,7 +473,9 @@ YYR = 220₆
 
 Doing this for the full grid reveals the message:
 
-```THE FLAG YOU SEEK IS HERE: SIGILCORE```
+```
+THE FLAG YOU SEEK IS HERE: SIGILCORE
+```
 
 Flag `SIGILCORE`
 

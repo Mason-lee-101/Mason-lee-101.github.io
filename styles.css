@@ -335,6 +335,7 @@ li {
   display: block;
   max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .post-content .highlight,
@@ -349,21 +350,32 @@ li {
 
 .post-content .code-frame {
   border-radius: 0;
+  max-width: 100%;
+  overflow: visible !important;
   padding: 0;
   position: relative;
+}
+
+.post-content .code-frame.highlight {
+  overflow: visible !important;
 }
 
 .code-toolbar {
   align-items: center;
   display: flex;
   gap: 0.5rem;
-  position: absolute;
   opacity: 0;
   pointer-events: none;
+  position: absolute;
   right: 0.5rem;
   top: 0.5rem;
   transition: opacity 0.15s ease;
   z-index: 1;
+}
+
+.post-content .code-frame.is-single-line .code-toolbar {
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .post-content .code-frame:hover .code-toolbar,
@@ -393,33 +405,54 @@ li {
 .post-content .code-frame pre {
   border: 0;
   border-radius: 0;
+  display: block;
   margin: 0;
-  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
   padding: 1rem;
-  white-space: pre-wrap;
+  white-space: pre !important;
+  word-break: normal;
+}
+
+.post-content .code-frame.is-wrapped pre {
+  white-space: pre-wrap !important;
   word-break: break-word;
 }
 
-.post-content .code-frame.is-nowrap pre {
+.post-content .code-frame.is-nowrap.has-overflow pre {
   overflow-x: auto;
-  white-space: pre;
-  word-break: normal;
 }
 
 .post-content .code-frame code,
 .post-content .code-frame code * {
   background: transparent;
   color: inherit;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   padding: 0;
-  white-space: inherit;
+  white-space: inherit !important;
+  word-break: normal;
+}
+
+.post-content .code-frame.is-wrapped code {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  white-space: pre-wrap !important;
+}
+
+.post-content .code-frame.is-wrapped code,
+.post-content .code-frame.is-wrapped code * {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap !important;
   word-break: break-word;
 }
 
 .post-content .code-frame.is-nowrap code,
 .post-content .code-frame.is-nowrap code * {
   overflow-wrap: normal;
-  white-space: pre;
+  white-space: pre !important;
   word-break: normal;
 }
 

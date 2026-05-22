@@ -2,7 +2,7 @@ const themeToggle = document.getElementById("theme-toggle");
 const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
 const routeSections = Array.from(document.querySelectorAll("[data-route-section]"));
 const codeBlocks = Array.from(document.querySelectorAll(".post-content pre"));
-const standaloneCodeBlocks = Array.from(document.querySelectorAll(".post-content p > code:only-child"));
+const postLinks = Array.from(document.querySelectorAll(".post-content a[href]"));
 const preferredDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
 const savedTheme = localStorage.getItem("theme");
 
@@ -53,6 +53,11 @@ function setActiveNavFromHash() {
 
 setActiveNavFromHash();
 window.addEventListener("hashchange", setActiveNavFromHash);
+
+postLinks.forEach((link) => {
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+});
 
 function copyText(text) {
   if (navigator.clipboard && window.isSecureContext) {
@@ -126,63 +131,59 @@ function enhanceCodeBlocks() {
       });
     });
 
-    wrapButton.addEventListener("click", () => {
-      const isNoWrap = frame.classList.toggle("is-nowrap");
-      wrapButton.textContent = isNoWrap ? "Wrap" : "No wrap";
-      wrapButton.setAttribute("aria-pressed", String(isNoWrap));
-    });
-  });
+    function updateOverflowState() {
+      const wasWrapped = frame.classList.contains("is-wrapped");
+      const codeLines = (code || pre).textContent
+        .trim()
+        .split(/\r?\n/);
+      const longestLineLength = codeLines
+        .reduce((longest, line) => Math.max(longest, line.length), 0);
+      const isLongLine = longestLineLength > 100;
 
-  standaloneCodeBlocks.forEach((code) => {
-    const paragraph = code.parentElement;
+      frame.classList.remove("is-wrapped");
+      frame.classList.toggle("is-single-line", codeLines.length === 1);
+      const hasOverflow = isLongLine && pre.scrollWidth > pre.clientWidth + 1;
+      frame.classList.toggle("has-overflow", hasOverflow);
 
-    if (!paragraph || paragraph.closest(".code-frame")) {
-      return;
+      if (!hasOverflow) {
+        frame.classList.remove("is-wrapped");
+        frame.classList.remove("is-nowrap");
+        wrapButton.hidden = true;
+        wrapButton.setAttribute("aria-pressed", "false");
+        wrapButton.textContent = "No wrap";
+        return;
+      }
+
+      wrapButton.hidden = false;
+
+      if (wasWrapped || !frame.classList.contains("is-nowrap")) {
+        frame.classList.add("is-wrapped");
+        wrapButton.textContent = "No wrap";
+        wrapButton.setAttribute("aria-pressed", "false");
+      }
     }
 
-    const frame = document.createElement("div");
-    frame.className = "code-frame";
-
-    const toolbar = document.createElement("div");
-    toolbar.className = "code-toolbar";
-
-    const copyButton = document.createElement("button");
-    copyButton.className = "code-button";
-    copyButton.type = "button";
-    copyButton.textContent = "Copy";
-
-    const wrapButton = document.createElement("button");
-    wrapButton.className = "code-button";
-    wrapButton.type = "button";
-    wrapButton.textContent = "No wrap";
-    wrapButton.setAttribute("aria-pressed", "false");
-
-    const pre = document.createElement("pre");
-    pre.appendChild(code);
-    toolbar.append(copyButton, wrapButton);
-    frame.append(toolbar, pre);
-    paragraph.replaceWith(frame);
-
-    copyButton.addEventListener("click", () => {
-      copyText(code.textContent).then(() => {
-        copyButton.textContent = "Copied";
-        window.setTimeout(() => {
-          copyButton.textContent = "Copy";
-        }, 1600);
-      }).catch(() => {
-        copyButton.textContent = "Copy failed";
-        window.setTimeout(() => {
-          copyButton.textContent = "Copy";
-        }, 1600);
-      });
-    });
-
     wrapButton.addEventListener("click", () => {
-      const isNoWrap = frame.classList.toggle("is-nowrap");
-      wrapButton.textContent = isNoWrap ? "Wrap" : "No wrap";
-      wrapButton.setAttribute("aria-pressed", String(isNoWrap));
+      const isWrapped = frame.classList.toggle("is-wrapped");
+
+      if (isWrapped) {
+        frame.classList.remove("is-nowrap");
+        wrapButton.textContent = "No wrap";
+        wrapButton.setAttribute("aria-pressed", "false");
+      } else {
+        frame.classList.add("is-nowrap");
+        wrapButton.textContent = "Wrap";
+        wrapButton.setAttribute("aria-pressed", "true");
+      }
     });
+
+    window.addEventListener("resize", () => {
+      updateOverflowState();
+    });
+
+    window.requestAnimationFrame(updateOverflowState);
   });
+
 }
 
 enhanceCodeBlocks();
