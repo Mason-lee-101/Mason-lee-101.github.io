@@ -479,6 +479,32 @@ li {
   border-radius: 0.75rem;
 }
 
+.post-content table {
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  margin: 1rem 0;
+  width: max-content;
+}
+
+.post-content th,
+.post-content td {
+  border: 1px solid var(--border);
+  line-height: 1.5;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.post-content th {
+  background: rgba(127, 127, 127, 0.12);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.post-content tr:nth-child(even) td {
+  background: rgba(127, 127, 127, 0.05);
+}
+
 .post-content code {
   font-family: Consolas, monospace;
   background: var(--code-bg);

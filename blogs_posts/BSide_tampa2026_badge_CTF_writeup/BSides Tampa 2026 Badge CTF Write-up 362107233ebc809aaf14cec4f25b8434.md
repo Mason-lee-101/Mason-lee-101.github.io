@@ -389,7 +389,7 @@ To confirm it was the right model we had. I had the pin-out documentation for th
 
 Now that we know that it was indeed a tiny 1616 chip, we know the chip will be talking over the UART protocol. On the back of the badge, you will see four pads labeled **VCC**, **GND**, **RX**, and **TX**. I solder header pins because I didn’t want to use bare wires and wanted the ability to remove them without looking like poop.
 
-![Wiring_badge.jpg](Wiring_badge.jpg)
+![Wiring_badge.jpg](./Pictures/Wiring_badge.jpg)
 
 UART protocol uses a few basic pins to send and receive serial data between two devices.
 
