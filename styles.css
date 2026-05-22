@@ -349,7 +349,6 @@ li {
 
 .post-content .code-frame {
   border-radius: 0;
-  overflow: hidden;
   padding: 0;
   position: relative;
 }
@@ -359,9 +358,18 @@ li {
   display: flex;
   gap: 0.5rem;
   position: absolute;
+  opacity: 0;
+  pointer-events: none;
   right: 0.5rem;
   top: 0.5rem;
+  transition: opacity 0.15s ease;
   z-index: 1;
+}
+
+.post-content .code-frame:hover .code-toolbar,
+.post-content .code-frame:focus-within .code-toolbar {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .code-button {
@@ -387,7 +395,7 @@ li {
   border-radius: 0;
   margin: 0;
   overflow-x: auto;
-  padding: 3rem 1rem 1rem;
+  padding: 1rem;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -400,7 +408,10 @@ li {
 
 .post-content .code-frame code,
 .post-content .code-frame code * {
+  background: transparent;
+  color: inherit;
   overflow-wrap: anywhere;
+  padding: 0;
   white-space: inherit;
   word-break: break-word;
 }
@@ -425,7 +436,7 @@ li {
 }
 
 .post-content .code-frame.highlight pre {
-  padding: 3rem 1rem 1rem;
+  padding: 1rem;
 }
 
 .post-content img,

@@ -2,6 +2,7 @@ const themeToggle = document.getElementById("theme-toggle");
 const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
 const routeSections = Array.from(document.querySelectorAll("[data-route-section]"));
 const codeBlocks = Array.from(document.querySelectorAll(".post-content pre"));
+const standaloneCodeBlocks = Array.from(document.querySelectorAll(".post-content p > code:only-child"));
 const preferredDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
 const savedTheme = localStorage.getItem("theme");
 
@@ -113,6 +114,57 @@ function enhanceCodeBlocks() {
 
     copyButton.addEventListener("click", () => {
       copyText((code || pre).textContent).then(() => {
+        copyButton.textContent = "Copied";
+        window.setTimeout(() => {
+          copyButton.textContent = "Copy";
+        }, 1600);
+      }).catch(() => {
+        copyButton.textContent = "Copy failed";
+        window.setTimeout(() => {
+          copyButton.textContent = "Copy";
+        }, 1600);
+      });
+    });
+
+    wrapButton.addEventListener("click", () => {
+      const isNoWrap = frame.classList.toggle("is-nowrap");
+      wrapButton.textContent = isNoWrap ? "Wrap" : "No wrap";
+      wrapButton.setAttribute("aria-pressed", String(isNoWrap));
+    });
+  });
+
+  standaloneCodeBlocks.forEach((code) => {
+    const paragraph = code.parentElement;
+
+    if (!paragraph || paragraph.closest(".code-frame")) {
+      return;
+    }
+
+    const frame = document.createElement("div");
+    frame.className = "code-frame";
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "code-toolbar";
+
+    const copyButton = document.createElement("button");
+    copyButton.className = "code-button";
+    copyButton.type = "button";
+    copyButton.textContent = "Copy";
+
+    const wrapButton = document.createElement("button");
+    wrapButton.className = "code-button";
+    wrapButton.type = "button";
+    wrapButton.textContent = "No wrap";
+    wrapButton.setAttribute("aria-pressed", "false");
+
+    const pre = document.createElement("pre");
+    pre.appendChild(code);
+    toolbar.append(copyButton, wrapButton);
+    frame.append(toolbar, pre);
+    paragraph.replaceWith(frame);
+
+    copyButton.addEventListener("click", () => {
+      copyText(code.textContent).then(() => {
         copyButton.textContent = "Copied";
         window.setTimeout(() => {
           copyButton.textContent = "Copy";
