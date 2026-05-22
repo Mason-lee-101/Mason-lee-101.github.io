@@ -161,6 +161,10 @@ li {
   color: var(--muted);
 }
 
+.home-section-title {
+  margin-top: 2rem;
+}
+
 .social-links {
   display: flex;
   flex-wrap: wrap;
