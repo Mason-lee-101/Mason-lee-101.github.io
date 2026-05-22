@@ -9,10 +9,10 @@
   --code-block-bg: #f6f8fa;
   --code-border: #d8dee8;
   --code-text: #1f2328;
-  --note-bg: #dbeafe;
-  --note-border: #1d4f86;
-  --note-text: #0b1f33;
-  --note-link: #064279;
+  --note-bg: #eeeeee;
+  --note-border: #8a8a8a;
+  --note-text: #202020;
+  --note-link: #3d3d3d;
 }
 
 body[data-theme="dark"] {
@@ -26,10 +26,10 @@ body[data-theme="dark"] {
   --code-block-bg: #0b0f14;
   --code-border: #3f4754;
   --code-text: #e8edf2;
-  --note-bg: #142235;
-  --note-border: #6ea8dc;
+  --note-bg: #242424;
+  --note-border: #707070;
   --note-text: #ffffff;
-  --note-link: #a9d4ff;
+  --note-link: #d0d0d0;
 }
 
 * {
@@ -351,20 +351,21 @@ li {
   border-radius: 0;
   overflow: hidden;
   padding: 0;
+  position: relative;
 }
 
 .code-toolbar {
   align-items: center;
-  background: rgba(127, 127, 127, 0.08);
-  border-bottom: 1px solid var(--code-border);
   display: flex;
   gap: 0.5rem;
-  justify-content: flex-end;
-  padding: 0.5rem;
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  z-index: 1;
 }
 
 .code-button {
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
   border: 1px solid var(--code-border);
   border-radius: 6px;
   color: var(--text);
@@ -386,22 +387,34 @@ li {
   border-radius: 0;
   margin: 0;
   overflow-x: auto;
-  padding: 1rem;
+  padding: 3rem 1rem 1rem;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .post-content .code-frame.is-nowrap pre {
+  overflow-x: auto;
   white-space: pre;
+  word-break: normal;
 }
 
-.post-content .code-frame code {
+.post-content .code-frame code,
+.post-content .code-frame code * {
   overflow-wrap: anywhere;
   white-space: inherit;
+  word-break: break-word;
+}
+
+.post-content .code-frame.is-nowrap code,
+.post-content .code-frame.is-nowrap code * {
+  overflow-wrap: normal;
+  white-space: pre;
   word-break: normal;
 }
 
 .post-content .code-frame.is-nowrap code {
-  overflow-wrap: normal;
+  display: inline-block;
+  min-width: max-content;
 }
 
 .post-content .highlight pre {
@@ -412,7 +425,7 @@ li {
 }
 
 .post-content .code-frame.highlight pre {
-  padding: 1rem;
+  padding: 3rem 1rem 1rem;
 }
 
 .post-content img,
