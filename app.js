@@ -8,6 +8,12 @@ const tabPanels = Array.from(document.querySelectorAll("[data-panel]"));
 const fallbackPosts = Array.isArray(window.BLOG_POSTS_FALLBACK) ? window.BLOG_POSTS_FALLBACK : [];
 const savedTheme = localStorage.getItem("theme");
 
+function getCanonicalPagePath() {
+  return window.location.pathname.replace(/(?:^|\/)index\.html$/i, (match) => {
+    return match.startsWith("/") ? "/" : "";
+  });
+}
+
 if (themeToggle && savedTheme === "dark") {
   document.body.dataset.theme = "dark";
   themeToggle.textContent = "Light mode";
@@ -52,9 +58,10 @@ function setActiveTab(tabName, updateHash = true) {
   }
 
   if (updateHash) {
+    const pagePath = getCanonicalPagePath();
     const nextUrl = nextTab === "home"
-      ? window.location.pathname
-      : `${window.location.pathname}#${nextTab}`;
+      ? pagePath
+      : `${pagePath}#${nextTab}`;
     history.replaceState(null, "", nextUrl);
   }
 }
@@ -363,7 +370,7 @@ function renderPreviewCard(folderRecord, markdown) {
     .join("");
 
   card.innerHTML = `
-    <a class="preview-link" href="index.html?post=${encodeURIComponent(folder)}#blog" aria-label="Open ${escapeHtml(title)}">
+    <a class="preview-link" href="${getCanonicalPagePath()}?post=${encodeURIComponent(folder)}" aria-label="Open ${escapeHtml(title)}">
       ${linesHtml}
     </a>
   `;
