@@ -424,8 +424,29 @@ function normalizeFolderRecord(record) {
   return {
     folder,
     file,
+    title: record.title || "",
+    date: record.date || record.Date || "",
+    description: record.description || "",
     markdown: record.markdown || ""
   };
+}
+
+function buildFallbackMarkdown(record) {
+  const fields = [
+    ["title", record.title],
+    ["Date", record.date],
+    ["description", record.description]
+  ].filter(([, value]) => value);
+
+  if (!fields.length) {
+    return record.markdown || "";
+  }
+
+  const frontMatter = fields
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+
+  return `---\n${frontMatter}\n---\n`;
 }
 
 function shouldIgnorePostFolder(folder) {
@@ -538,7 +559,7 @@ async function loadMarkdownFile(folderRecord) {
       (post) => post.folder === folder && post.file === file
     );
 
-    if (fallbackPost) {
+    if (fallbackPost?.markdown) {
       return fallbackPost.markdown;
     }
 
@@ -600,7 +621,17 @@ async function loadBlogList() {
 
     const loadedPosts = await Promise.all(
       manifest.map(async (record) => {
-        const markdown = await loadMarkdownFile(record);
+        let markdown = "";
+
+        try {
+          markdown = await loadMarkdownFile(record);
+        } catch (error) {
+          const fallbackPost = getFallbackFolderPosts().find(
+            (post) => post.folder === record.folder && post.file === record.file
+          );
+          markdown = fallbackPost ? buildFallbackMarkdown(fallbackPost) : "";
+        }
+
         return {
           record,
           markdown,

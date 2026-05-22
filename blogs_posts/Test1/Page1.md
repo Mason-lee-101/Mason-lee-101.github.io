@@ -1,3 +1,9 @@
-# Page 1
+---
+title: MY NEW BLOG SITE YAY
 Date: 04/06/2026
-description:  test1
+description: I don't know what to put here
+---
+
+# welcome to my blog site
+
+random stuff should go here
