@@ -3,6 +3,7 @@ layout: post
 title: BSides Tampa 2026 Badge CTF Write-up
 date: 2026-05-21
 description: This write-up is for the BSides Tampa 2026 Badge CTF.
+permalink: /blog/bsides-tampa-2026-badge-ctf/
 ---
 # Overview
 
