@@ -200,6 +200,46 @@ function getMeaningfulLines(markdown) {
     .filter((line) => line.length > 0);
 }
 
+function parseFrontMatter(markdown) {
+  const normalized = markdown.replace(/\r/g, "");
+
+  if (!normalized.startsWith("---\n")) {
+    return { metadata: {}, body: markdown };
+  }
+
+  const endIndex = normalized.indexOf("\n---", 4);
+
+  if (endIndex === -1) {
+    return { metadata: {}, body: markdown };
+  }
+
+  const metadata = normalized
+    .slice(4, endIndex)
+    .split("\n")
+    .reduce((fields, line) => {
+      const match = line.match(/^([^:]+):\s*(.*)$/);
+
+      if (match) {
+        fields[match[1].trim().toLowerCase()] = match[2].trim();
+      }
+
+      return fields;
+    }, {});
+
+  return {
+    metadata,
+    body: normalized.slice(endIndex + 5).replace(/^\n+/, "")
+  };
+}
+
+function getPostBody(markdown) {
+  return parseFrontMatter(markdown).body;
+}
+
+function getPostMetadata(markdown) {
+  return parseFrontMatter(markdown).metadata;
+}
+
 function getPreviewLines(markdown) {
   const description = getPostDescription(markdown);
 
@@ -211,7 +251,7 @@ function getPreviewLines(markdown) {
 }
 
 function removePostMetadata(markdown) {
-  return markdown
+  return getPostBody(markdown)
     .replace(/\r/g, "")
     .split("\n")
     .filter((line) => {
@@ -239,12 +279,24 @@ function removePostHeader(markdown, title) {
 }
 
 function getPostTitle(markdown, fallbackTitle) {
-  const titleLine = getMeaningfulLines(markdown).find((line) => line.startsWith("# "));
+  const metadataTitle = getPostMetadata(markdown).title;
+
+  if (metadataTitle) {
+    return metadataTitle;
+  }
+
+  const titleLine = getMeaningfulLines(getPostBody(markdown)).find((line) => line.startsWith("# "));
   return titleLine ? titleLine.slice(2).trim() : fallbackTitle;
 }
 
 function getPostDescription(markdown) {
-  const descriptionLine = getMeaningfulLines(markdown).find((line) => /^description:/i.test(line));
+  const metadataDescription = getPostMetadata(markdown).description;
+
+  if (metadataDescription) {
+    return metadataDescription;
+  }
+
+  const descriptionLine = getMeaningfulLines(getPostBody(markdown)).find((line) => /^description:/i.test(line));
 
   if (!descriptionLine) {
     return "";
@@ -254,7 +306,13 @@ function getPostDescription(markdown) {
 }
 
 function getRawPostDate(markdown) {
-  const dateLine = getMeaningfulLines(markdown).find((line) => /^date:/i.test(line));
+  const metadataDate = getPostMetadata(markdown).date;
+
+  if (metadataDate) {
+    return metadataDate;
+  }
+
+  const dateLine = getMeaningfulLines(getPostBody(markdown)).find((line) => /^date:/i.test(line));
 
   if (!dateLine) {
     return "";
@@ -366,7 +424,6 @@ function normalizeFolderRecord(record) {
   return {
     folder,
     file,
-    headerFile: record.headerFile || record.header || "",
     markdown: record.markdown || ""
   };
 }
@@ -407,7 +464,6 @@ async function discoverFolderEntry(repoInfo, folder) {
   }
 
   const items = await response.json();
-  const headerFile = items.find((item) => item.type === "file" && item.name.toLowerCase() === "header.md");
   const markdownFile = items.find((item) => {
     const name = item.name.toLowerCase();
     return item.type === "file" && name.endsWith(".md") && name !== "header.md";
@@ -419,8 +475,7 @@ async function discoverFolderEntry(repoInfo, folder) {
 
   return {
     folder,
-    file: markdownFile.name,
-    headerFile: headerFile?.name || ""
+    file: markdownFile.name
   };
 }
 
@@ -454,14 +509,14 @@ async function loadManifest() {
     const fallbackRecords = getFallbackFolderPosts();
 
     if (fallbackRecords.length > 0) {
-      return fallbackRecords.map(({ folder, file, headerFile }) => ({ folder, file, headerFile }));
+      return fallbackRecords.map(({ folder, file }) => ({ folder, file }));
     }
   }
 
   const fallbackRecords = getFallbackFolderPosts();
 
   if (fallbackRecords.length > 0) {
-    return fallbackRecords.map(({ folder, file, headerFile }) => ({ folder, file, headerFile }));
+    return fallbackRecords.map(({ folder, file }) => ({ folder, file }));
   }
 
   throw new Error("No dynamic post source is available.");
@@ -489,32 +544,6 @@ async function loadMarkdownFile(folderRecord) {
 
     throw error;
   }
-}
-
-async function loadHeaderFile(folderRecord) {
-  const { folder, headerFile } = folderRecord;
-
-  if (!headerFile) {
-    return "";
-  }
-
-  try {
-    const response = await fetch(`blogs_posts/${folder}/${headerFile}`);
-
-    if (!response.ok) {
-      return "";
-    }
-
-    return await response.text();
-  } catch (error) {
-    return "";
-  }
-}
-
-async function loadPostMarkdown(folderRecord) {
-  const header = await loadHeaderFile(folderRecord);
-  const markdown = await loadMarkdownFile(folderRecord);
-  return header ? `${header.trim()}\n\n${markdown}` : markdown;
 }
 
 function renderPreviewCard(folderRecord, markdown) {
@@ -571,7 +600,7 @@ async function loadBlogList() {
 
     const loadedPosts = await Promise.all(
       manifest.map(async (record) => {
-        const markdown = await loadPostMarkdown(record);
+        const markdown = await loadMarkdownFile(record);
         return {
           record,
           markdown,
@@ -621,7 +650,7 @@ async function loadSinglePost() {
       throw new Error(`Could not find post folder ${folder}.`);
     }
 
-    const markdown = await loadPostMarkdown(record);
+    const markdown = await loadMarkdownFile(record);
     const title = getPostTitle(markdown, folder);
     const basePath = `blogs_posts/${record.folder}/`;
     const publishDate = await getPublishDate(record, markdown);
