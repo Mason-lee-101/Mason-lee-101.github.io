@@ -1,4 +1,5 @@
 const themeToggle = document.getElementById("theme-toggle");
+const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
 const savedTheme = localStorage.getItem("theme");
 
 function setTheme(isDark) {
@@ -21,3 +22,20 @@ if (themeToggle) {
     setTheme(nextIsDark);
   });
 }
+
+function setActiveNavFromHash() {
+  if (!navLinks.length) {
+    return;
+  }
+
+  const activeTarget = document.body.dataset.pageLayout === "post" || window.location.hash === "#blog"
+    ? "blog"
+    : "home";
+
+  navLinks.forEach((link) => {
+    link.classList.toggle("is-current", link.dataset.navLink === activeTarget);
+  });
+}
+
+setActiveNavFromHash();
+window.addEventListener("hashchange", setActiveNavFromHash);

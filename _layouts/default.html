@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
   {% feed_meta %}
 </head>
-<body>
+<body data-page-layout="{{ page.layout }}">
   <div class="page">
     <header class="topbar">
       <a class="brand" href="{{ '/' | relative_url }}">
@@ -17,8 +17,8 @@
       </a>
       <div class="topbar-right">
         <nav class="nav" aria-label="Main navigation">
-          <a class="nav-link{% if page.url == '/' %} is-current{% endif %}" href="{{ '/' | relative_url }}">Home</a>
-          <a class="nav-link{% if page.layout == 'post' %} is-current{% endif %}" href="{{ '/#blog' | relative_url }}">Blog</a>
+          <a class="nav-link{% if page.url == '/' %} is-current{% endif %}" data-nav-link="home" href="{{ '/#home' | relative_url }}">Home</a>
+          <a class="nav-link{% if page.layout == 'post' %} is-current{% endif %}" data-nav-link="blog" href="{{ '/#blog' | relative_url }}">Blog</a>
         </nav>
         <button class="toggle-button" id="theme-toggle" type="button">Dark mode</button>
       </div>
