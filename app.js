@@ -1,5 +1,7 @@
 const themeToggle = document.getElementById("theme-toggle");
 const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
+const routeSections = Array.from(document.querySelectorAll("[data-route-section]"));
+const preferredDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
 const savedTheme = localStorage.getItem("theme");
 
 function setTheme(isDark) {
@@ -13,13 +15,19 @@ function setTheme(isDark) {
 }
 
 if (themeToggle) {
-  setTheme(savedTheme === "dark");
+  setTheme(savedTheme ? savedTheme === "dark" : preferredDarkMode.matches);
 
   themeToggle.addEventListener("click", () => {
     const isDark = document.body.dataset.theme === "dark";
     const nextIsDark = !isDark;
     localStorage.setItem("theme", nextIsDark ? "dark" : "light");
     setTheme(nextIsDark);
+  });
+
+  preferredDarkMode.addEventListener("change", (event) => {
+    if (!localStorage.getItem("theme")) {
+      setTheme(event.matches);
+    }
   });
 }
 
@@ -34,6 +42,10 @@ function setActiveNavFromHash() {
 
   navLinks.forEach((link) => {
     link.classList.toggle("is-current", link.dataset.navLink === activeTarget);
+  });
+
+  routeSections.forEach((section) => {
+    section.hidden = section.dataset.routeSection !== activeTarget;
   });
 }
 
