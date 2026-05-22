@@ -225,6 +225,12 @@ li {
   margin-bottom: 0;
 }
 
+.preview-date {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .back-link {
   text-decoration: none;
 }
@@ -233,10 +239,18 @@ li {
   padding-bottom: 1.5rem;
 }
 
+.post-title {
+  margin-bottom: 0.5rem;
+}
+
 .post-meta {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.post-back {
+  margin-bottom: 2rem;
 }
 
 .post-content > *:last-child {

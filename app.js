@@ -3,6 +3,7 @@ const postList = document.getElementById("post-list");
 const postView = document.getElementById("post-view");
 const blogListView = document.getElementById("blog-list-view");
 const blogPostView = document.getElementById("blog-post-view");
+const blogHeading = document.getElementById("blog-heading");
 const tabButtons = Array.from(document.querySelectorAll("[data-tab]"));
 const tabPanels = Array.from(document.querySelectorAll("[data-panel]"));
 const fallbackPosts = Array.isArray(window.BLOG_POSTS_FALLBACK) ? window.BLOG_POSTS_FALLBACK : [];
@@ -218,6 +219,23 @@ function removePostMetadata(markdown) {
       return !/^(date|description):/i.test(trimmed);
     })
     .join("\n");
+}
+
+function removePostHeader(markdown, title) {
+  let removedTitle = false;
+
+  return removePostMetadata(markdown)
+    .split("\n")
+    .filter((line) => {
+      if (!removedTitle && line.trim() === `# ${title}`) {
+        removedTitle = true;
+        return false;
+      }
+
+      return true;
+    })
+    .join("\n")
+    .trimStart();
 }
 
 function getPostTitle(markdown, fallbackTitle) {
@@ -503,6 +521,10 @@ function renderPreviewCard(folderRecord, markdown) {
   const { folder } = folderRecord;
   const lines = getPreviewLines(markdown);
   const title = getPostTitle(markdown, folder);
+  const publishDate = formatPostDate(getRawPostDate(markdown));
+  const publishDateHtml = publishDate
+    ? `<p class="preview-date">publish date: ${publishDate}</p>`
+    : "";
   const card = document.createElement("article");
   card.className = "preview-card";
 
@@ -513,6 +535,7 @@ function renderPreviewCard(folderRecord, markdown) {
   card.innerHTML = `
     <a class="preview-link" href="${getCanonicalPagePath()}?post=${encodeURIComponent(folder)}" aria-label="Open ${escapeHtml(title)}">
       ${linesHtml}
+      ${publishDateHtml}
     </a>
   `;
 
@@ -527,6 +550,10 @@ function setBlogView(mode) {
   const showPost = mode === "post";
   blogListView.hidden = showPost;
   blogPostView.hidden = !showPost;
+
+  if (blogHeading) {
+    blogHeading.hidden = showPost;
+  }
 }
 
 async function loadBlogList() {
@@ -604,8 +631,10 @@ async function loadSinglePost() {
 
     document.title = `${title} | Mason Lee`;
     postView.innerHTML = `
+      <h2 class="post-title">${escapeHtml(title)}</h2>
       ${publishDateHtml}
-      <div class="post-content">${renderMarkdown(removePostMetadata(markdown), basePath)}</div>
+      <p class="post-back"><a class="back-link" href="./#blog">Back to blog</a></p>
+      <div class="post-content">${renderMarkdown(removePostHeader(markdown, title), basePath)}</div>
     `;
   } catch (error) {
     setBlogView("post");

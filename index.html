@@ -19,9 +19,6 @@
           <button class="tab-button is-current" id="tab-home" type="button" data-tab="home" role="tab" aria-selected="true" aria-controls="panel-home">
             Home
           </button>
-          <button class="tab-button" id="tab-about" type="button" data-tab="about" role="tab" aria-selected="false" aria-controls="panel-about">
-            About
-          </button>
           <button class="tab-button" id="tab-blog" type="button" data-tab="blog" role="tab" aria-selected="false" aria-controls="panel-blog">
             Blog
           </button>
@@ -36,6 +33,10 @@
         <p class="intro">
           This is my homepage. I am really bad at building a website.
         </p>
+        <h2>About</h2>
+        <p>
+          umm, I'm Mason.
+        </p>
         <ul class="social-links" aria-label="Social accounts">
           <li><a href="https://www.youtube.com/@Mason_Lee_101" target="_blank" rel="noopener noreferrer">YouTube</a></li>
           <li><a href="https://x.com/Mason_Lee_101" target="_blank" rel="noopener noreferrer">X</a></li>
@@ -44,15 +45,8 @@
         </ul>
       </section>
 
-      <section class="tab-panel" id="panel-about" data-panel="about" role="tabpanel" aria-labelledby="tab-about" hidden>
-        <h2>About</h2>
-        <p>
-          umm, I'm Mason. 
-        </p>
-      </section>
-
       <section class="tab-panel" id="panel-blog" data-panel="blog" role="tabpanel" aria-labelledby="tab-blog" hidden>
-        <h2>Blog</h2>
+        <h2 id="blog-heading">Blog</h2>
         <div id="blog-list-view">
           <div class="post-list" id="post-list">
             <p class="status-message">Loading posts...</p>
@@ -60,7 +54,6 @@
         </div>
 
         <div id="blog-post-view" hidden>
-          <p><a class="back-link" href="./#blog">Back to blog</a></p>
           <div id="post-view">
             <p class="status-message">Loading post...</p>
           </div>
