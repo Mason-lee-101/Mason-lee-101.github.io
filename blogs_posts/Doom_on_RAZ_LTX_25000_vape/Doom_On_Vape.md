@@ -16,21 +16,21 @@ I was at Hackerspacecon 2026 with some friends, doing what people do best. At so
 
 We were trying to find a vape with an Android OS like the Swype vapes, but when we got to the store, they only had RAZ vapes and one other vape with a tiny screen. I don't remember the brand. We ended up getting the RAZ LTX 25000.
 
-![Vape Box](./pictures/Vape_box.png)
+![Vape Box](./Pictures/Vape_box.png)
 
 ## Teardown and Research
 
 Now that the vape had been selected and was heading back to the after-party at Hackspacecon, we started looking for anything about it in the lobby since it was raining. We found a [teardown video](https://www.youtube.com/watch?v=dFn5By8aqM8). Once we got the vape apart, it was really hard to see the main control board.
 
-![Vape Internals](./pictures/Vape_internals.png)
+![Vape Internals](./Pictures/Vape_internals.png)
 
 But the main chip said N32 something.
 
-![Close up of N32G031K8Q7 chip](./pictures/Closeup_N32G031K8Q7.png)
+![Close up of N32G031K8Q7 chip](./Pictures/Closeup_N32G031K8Q7.png)
 
 When we looked up `N32G031K8Q7` on Google, we found a guide and the chip manual for a similar vape, the RAZ DC25000. It turns out that was the old name for the vape we currently had in our hands.
 
-![Vape rebrand message](./pictures/Vape_rebrand.png)
+![Vape rebrand message](./Pictures/Vape_rebrand.png)
 
 While looking at the guide, we noticed this happened at the same conference and during the same after-party, just one year ago: [Praetorian's hardware hacking blog](https://www.praetorian.com/blog/hardware-hacking-a-nicotine-vape). This guide gave us a lot of information about the vape and other resources.
 
@@ -42,7 +42,7 @@ Now that we knew we could access the SWD port over USB, per the Praetorian blog,
 
 Hold down the button for 15 seconds to show the software version and access the SWD port protocol.
 
-![Vape Debug Screen](./pictures/Vape_debug_screen.png)
+![Vape Debug Screen](./Pictures/Vape_debug_screen.png)
 
 The white model version that we got:
 
@@ -60,13 +60,13 @@ GV2024
 0714V1
 ```
 
-![Vape board and battery](./pictures/Vape_board_and_battery.png)
+![Vape board and battery](./Pictures/Vape_board_and_battery.png)
 
 ## After Hackspacecon
 
 After Hackspacecon, I got to work on the vape and tried to dump the firmware. The first step was identifying which pins were used to communicate with the vape over USB. Using the documentation that ginbot86 had in their [ColorLCDVape-RE repo](https://github.com/ginbot86/ColorLCDVape-RE/blob/main/docs/KrazeHD7K-RazTN9000.md), I got a really good idea of which pins I needed to access the SWD port.
 
-![Type-C pinout](./pictures/Type_c_pinout.png)
+![Type-C pinout](./Pictures/Type_c_pinout.png)
 
 ## Wiring the Vape
 
@@ -87,7 +87,7 @@ I used the Tigard as my interface board. You could use an ST-Link board to inter
 
 > Note: Some Type-C cords only have power and no data wires.
 
-![Wiring up the vape to Tigard](./pictures/Wring_up_to_Vape.png)
+![Wiring up the vape to Tigard](./Pictures/Wring_up_to_Vape.png)
 
 Once I got everything hooked up and tried using OpenOCD, I could not get the vape to connect to the computer. After searching Reddit, I found a post saying you need to enter debug mode to connect via SWD.
 
@@ -124,17 +124,17 @@ reset run
 shutdown
 ```
 
-![Flashing vape](./pictures/First_Flash_of_vape.png)
+![Flashing vape](./Pictures/First_Flash_of_vape.png)
 
 ## Problems
 
 So I slacked a little too much, and between heading to BSides Tampa and other things, I somehow managed to break the vape, and nothing worked anymore. I could no longer talk to the vapes over SWD. After spending a whole week trying to figure out what happened, making sure the wires were correct and that I hadn't broken the Tigard or any of the breakout boards, I accidentally jumped the two GND pins together while trying to get OpenOCD working, and got a connection to the vape.
 
-![Old wiring setup](./pictures/Old_wiring_setup.png)
+![Old wiring setup](./Pictures/Old_wiring_setup.png)
 
 Above is how Praetorian and I wired it before the problem. Below is how I now have to connect the wires to get access to the SWD port.
 
-![New wiring setup](./pictures/New_wiring_setup.png)
+![New wiring setup](./Pictures/New_wiring_setup.png)
 
 I have no idea what happened, but we can get back to work.
 
@@ -156,7 +156,7 @@ Another thing this guy did was release an SDK that lets you flash anything to th
 
 The first thing I had to do was see if the example worked on the vape I had. Using the guide on GitHub, I flashed it to the vape.
 
-![Flappy Bird test](./pictures/Flappy_bird.png)
+![Flappy Bird test](./Pictures/Flappy_bird.png)
 
 It works, kinda. You can play a Flappy Bird clone, but you can't use the vape to vape. Which would make sense, since the big warning sign noted that none of the examples use the coil, but you can control them if you want to.
 
@@ -190,7 +190,7 @@ reset run
 shutdown
 ```
 
-![Vape right after flash](./pictures/Vape_after_flash.png)
+![Vape right after flash](./Pictures/Vape_after_flash.png)
 
 ## It's Close Enough
 
