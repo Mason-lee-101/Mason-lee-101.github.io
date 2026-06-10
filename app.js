@@ -150,7 +150,10 @@ function enhanceCodeBlocks() {
 
       frame.classList.remove("is-wrapped");
       frame.classList.toggle("is-single-line", codeLines.length === 1);
-      const hasOverflow = isLongLine && pre.scrollWidth > pre.clientWidth + 1;
+      const contentWidth = code
+        ? code.getBoundingClientRect().width
+        : pre.scrollWidth;
+      const hasOverflow = isLongLine || contentWidth > scrollArea.clientWidth + 1;
       frame.classList.toggle("has-overflow", hasOverflow);
 
       if (!hasOverflow) {

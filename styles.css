@@ -493,7 +493,7 @@ li {
   word-break: break-word;
 }
 
-.post-content .code-frame.is-nowrap.has-overflow .code-scroll {
+.post-content .code-frame.is-nowrap .code-scroll {
   overflow-x: auto;
 }
 
