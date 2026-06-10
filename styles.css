@@ -418,34 +418,31 @@ li {
 .post-content .code-frame {
   border-radius: 0;
   max-width: 100%;
-  overflow: visible !important;
+  overflow: hidden !important;
   padding: 0;
   position: relative;
 }
 
 .post-content .code-frame.highlight {
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 
 .code-toolbar {
   align-items: center;
   display: flex;
   gap: 0.5rem;
-  justify-content: flex-end;
-  margin: 0.5rem 0.5rem -2.45rem auto;
-  max-width: calc(100% - 1rem);
   opacity: 0;
   pointer-events: none;
-  position: sticky;
+  position: absolute;
   right: 0.5rem;
   top: 0.5rem;
   transition: opacity 0.15s ease;
-  width: fit-content;
   z-index: 2;
 }
 
 .post-content .code-frame.is-single-line .code-toolbar {
-  margin-bottom: -2.35rem;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .post-content .code-frame:hover .code-toolbar,
@@ -472,6 +469,12 @@ li {
   color: var(--link);
 }
 
+.post-content .code-scroll {
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
 .post-content .code-frame pre {
   border: 0;
   border-radius: 0;
@@ -479,8 +482,7 @@ li {
   margin: 0;
   max-width: 100%;
   min-width: 0;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: visible;
   padding: 1rem;
   white-space: pre !important;
   word-break: normal;
@@ -491,7 +493,7 @@ li {
   word-break: break-word;
 }
 
-.post-content .code-frame.is-nowrap.has-overflow pre {
+.post-content .code-frame.is-nowrap.has-overflow .code-scroll {
   overflow-x: auto;
 }
 

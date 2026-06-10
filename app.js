@@ -103,6 +103,11 @@ function enhanceCodeBlocks() {
       frame.classList.add("code-frame");
     }
 
+    const scrollArea = document.createElement("div");
+    scrollArea.className = "code-scroll";
+    pre.parentNode.insertBefore(scrollArea, pre);
+    scrollArea.appendChild(pre);
+
     const toolbar = document.createElement("div");
     toolbar.className = "code-toolbar";
 
