@@ -497,6 +497,11 @@ li {
   overflow-x: auto;
 }
 
+.post-content .code-frame.is-nowrap pre {
+  min-width: 100%;
+  width: max-content;
+}
+
 .post-content .code-frame code,
 .post-content .code-frame code * {
   background: transparent;
