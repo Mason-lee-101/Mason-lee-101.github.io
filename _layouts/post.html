@@ -3,7 +3,13 @@ layout: default
 ---
 
 <section class="post-shell">
-  <article>
+  <aside class="post-toc" aria-labelledby="post-toc-title" data-post-toc hidden>
+    <h2 id="post-toc-title">Contents</h2>
+    <nav aria-label="Table of contents">
+      <ol data-post-toc-list></ol>
+    </nav>
+  </aside>
+  <article class="post-article">
     <h1 class="post-title">{{ page.title }}</h1>
     {% assign publish_date = page.date | default: page.Date %}
     {% if publish_date %}

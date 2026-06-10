@@ -265,8 +265,70 @@ li {
 }
 
 .post-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  gap: 2rem;
   padding-bottom: 1.5rem;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.post-article {
+  min-width: 0;
+}
+
+.post-toc {
+  align-self: start;
+  border-left: 1px solid var(--border);
+  color: var(--muted);
+  grid-column: 2;
+  grid-row: 1;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding-left: 1rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.post-toc[hidden] {
+  display: none;
+}
+
+.post-toc h2 {
+  color: var(--text);
+  font-size: 0.95rem;
+  margin-bottom: 0.65rem;
+}
+
+.post-toc ol {
+  display: grid;
+  gap: 0.2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-toc li {
+  line-height: 1.3;
+}
+
+.post-toc a {
+  border-radius: 6px;
+  color: inherit;
+  display: block;
+  padding: 0.35rem 0.45rem;
+  text-decoration: none;
+}
+
+.post-toc a:hover,
+.post-toc a:focus-visible,
+.post-toc a.is-active {
+  background: rgba(127, 127, 127, 0.08);
+  color: var(--link);
+}
+
+.toc-level-h3 {
+  padding-left: 0.8rem;
+  font-size: 0.92rem;
 }
 
 .post-title {
@@ -290,6 +352,11 @@ li {
 .post-content {
   max-width: 100%;
   overflow-wrap: anywhere;
+}
+
+.post-content h2,
+.post-content h3 {
+  scroll-margin-top: 1rem;
 }
 
 .post-content ul {
@@ -364,18 +431,18 @@ li {
   align-items: center;
   display: flex;
   gap: 0.5rem;
+  justify-content: flex-end;
+  margin: 0.5rem 0.5rem -2.45rem;
   opacity: 0;
   pointer-events: none;
-  position: absolute;
-  right: 0.5rem;
+  position: sticky;
   top: 0.5rem;
   transition: opacity 0.15s ease;
-  z-index: 1;
+  z-index: 2;
 }
 
 .post-content .code-frame.is-single-line .code-toolbar {
-  top: 50%;
-  transform: translateY(-50%);
+  margin-bottom: -2.35rem;
 }
 
 .post-content .code-frame:hover .code-toolbar,
@@ -595,6 +662,20 @@ li {
 
   section {
     padding: 1rem;
+  }
+
+  .post-shell {
+    display: block;
+  }
+
+  .post-toc {
+    border-left: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    max-height: none;
+    overflow: visible;
+    padding: 0 0 1rem;
+    position: static;
   }
 
   .site-footer {

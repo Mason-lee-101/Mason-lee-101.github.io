@@ -3,6 +3,9 @@ const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
 const routeSections = Array.from(document.querySelectorAll("[data-route-section]"));
 const codeBlocks = Array.from(document.querySelectorAll(".post-content pre"));
 const postLinks = Array.from(document.querySelectorAll(".post-content a[href]"));
+const postContent = document.querySelector(".post-content");
+const postToc = document.querySelector("[data-post-toc]");
+const postTocList = document.querySelector("[data-post-toc-list]");
 const preferredDarkMode = window.matchMedia("(prefers-color-scheme: dark)");
 const savedTheme = localStorage.getItem("theme");
 
@@ -187,3 +190,69 @@ function enhanceCodeBlocks() {
 }
 
 enhanceCodeBlocks();
+
+function slugifyHeading(text) {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "section";
+}
+
+function enhancePostToc() {
+  if (!postContent || !postToc || !postTocList) {
+    return;
+  }
+
+  const headings = Array.from(postContent.querySelectorAll("h2, h3"))
+    .filter((heading) => heading.textContent.trim());
+
+  if (!headings.length) {
+    return;
+  }
+
+  const usedIds = new Map();
+  const tocLinks = headings.map((heading) => {
+    if (!heading.id) {
+      const baseId = slugifyHeading(heading.textContent);
+      const usedCount = usedIds.get(baseId) || 0;
+      usedIds.set(baseId, usedCount + 1);
+      heading.id = usedCount ? `${baseId}-${usedCount + 1}` : baseId;
+    }
+
+    const item = document.createElement("li");
+    item.className = `toc-level-${heading.tagName.toLowerCase()}`;
+
+    const link = document.createElement("a");
+    link.href = `#${heading.id}`;
+    link.textContent = heading.textContent.trim();
+    link.dataset.tocTarget = heading.id;
+
+    item.appendChild(link);
+    postTocList.appendChild(item);
+    return link;
+  });
+
+  postToc.hidden = false;
+
+  const observer = new IntersectionObserver((entries) => {
+    const visibleEntry = entries
+      .filter((entry) => entry.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+
+    if (!visibleEntry) {
+      return;
+    }
+
+    tocLinks.forEach((link) => {
+      link.classList.toggle("is-active", link.dataset.tocTarget === visibleEntry.target.id);
+    });
+  }, {
+    rootMargin: "-20% 0px -65% 0px",
+    threshold: 0
+  });
+
+  headings.forEach((heading) => observer.observe(heading));
+}
+
+enhancePostToc();
