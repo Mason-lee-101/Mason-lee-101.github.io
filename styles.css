@@ -548,11 +548,27 @@ li {
   border-radius: 8px;
 }
 
-footer {
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   margin-top: 1.5rem;
   color: var(--muted);
   font-size: 0.9rem;
-  text-align: center;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.footer-social-links {
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.footer-social-links a {
+  color: var(--muted);
 }
 
 @media (max-width: 560px) {
@@ -579,6 +595,12 @@ footer {
 
   section {
     padding: 1rem;
+  }
+
+  .site-footer {
+    align-items: flex-end;
+    flex-direction: column;
+    text-align: right;
   }
 
 }
