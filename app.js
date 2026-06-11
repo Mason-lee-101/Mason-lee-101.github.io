@@ -119,11 +119,12 @@ function enhanceCodeBlocks() {
     const wrapButton = document.createElement("button");
     wrapButton.className = "code-button";
     wrapButton.type = "button";
-    wrapButton.textContent = "No wrap";
+    wrapButton.textContent = "Unwrap";
     wrapButton.setAttribute("aria-pressed", "false");
 
     toolbar.append(copyButton, wrapButton);
     frame.insertBefore(toolbar, frame.firstChild);
+    frame.classList.add("is-wrapped");
 
     copyButton.addEventListener("click", () => {
       copyText((code || pre).textContent).then(() => {
@@ -139,60 +140,22 @@ function enhanceCodeBlocks() {
       });
     });
 
-    function updateOverflowState() {
-      const wasWrapped = frame.classList.contains("is-wrapped");
-      const codeLines = (code || pre).textContent
-        .trim()
-        .split(/\r?\n/);
-      const longestLineLength = codeLines
-        .reduce((longest, line) => Math.max(longest, line.length), 0);
-      const isLongLine = longestLineLength > 100;
-
-      frame.classList.remove("is-wrapped");
-      frame.classList.toggle("is-single-line", codeLines.length === 1);
-      const contentWidth = code
-        ? code.getBoundingClientRect().width
-        : pre.scrollWidth;
-      const hasOverflow = isLongLine || contentWidth > scrollArea.clientWidth + 1;
-      frame.classList.toggle("has-overflow", hasOverflow);
-
-      if (!hasOverflow) {
-        frame.classList.remove("is-wrapped");
-        frame.classList.remove("is-nowrap");
-        wrapButton.hidden = true;
-        wrapButton.setAttribute("aria-pressed", "false");
-        wrapButton.textContent = "No wrap";
-        return;
-      }
-
-      wrapButton.hidden = false;
-
-      if (wasWrapped || !frame.classList.contains("is-nowrap")) {
-        frame.classList.add("is-wrapped");
-        wrapButton.textContent = "No wrap";
-        wrapButton.setAttribute("aria-pressed", "false");
-      }
-    }
-
     wrapButton.addEventListener("click", () => {
-      const isWrapped = frame.classList.toggle("is-wrapped");
+      const shouldUnwrap = frame.classList.contains("is-wrapped");
 
-      if (isWrapped) {
-        frame.classList.remove("is-nowrap");
-        wrapButton.textContent = "No wrap";
-        wrapButton.setAttribute("aria-pressed", "false");
-      } else {
+      if (shouldUnwrap) {
+        frame.classList.remove("is-wrapped");
         frame.classList.add("is-nowrap");
         wrapButton.textContent = "Wrap";
         wrapButton.setAttribute("aria-pressed", "true");
+      } else {
+        frame.classList.remove("is-nowrap");
+        frame.classList.add("is-wrapped");
+        scrollArea.scrollLeft = 0;
+        wrapButton.textContent = "Unwrap";
+        wrapButton.setAttribute("aria-pressed", "false");
       }
     });
-
-    window.addEventListener("resize", () => {
-      updateOverflowState();
-    });
-
-    window.requestAnimationFrame(updateOverflowState);
   });
 
 }

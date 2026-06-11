@@ -416,7 +416,11 @@ li {
 }
 
 .post-content .code-frame {
+  background: var(--code-block-bg);
+  border: 1px solid var(--code-border);
   border-radius: 0;
+  color: var(--code-text);
+  margin: 1rem 0;
   max-width: 100%;
   overflow: hidden !important;
   padding: 0;
@@ -431,24 +435,8 @@ li {
   align-items: center;
   display: flex;
   gap: 0.5rem;
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
-  transition: opacity 0.15s ease;
-  z-index: 2;
-}
-
-.post-content .code-frame.is-single-line .code-toolbar {
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.post-content .code-frame:hover .code-toolbar,
-.post-content .code-frame:focus-within .code-toolbar {
-  opacity: 1;
-  pointer-events: auto;
+  justify-content: flex-end;
+  padding: 0.5rem 0.5rem 0;
 }
 
 .code-button {
@@ -483,8 +471,16 @@ li {
   max-width: 100%;
   min-width: 0;
   overflow: visible;
-  padding: 1rem;
+  padding: 0.75rem 1rem 1rem;
+  white-space: pre-wrap !important;
+  word-break: break-word;
+}
+
+.post-content .code-frame.is-nowrap pre {
+  max-width: none;
+  min-width: 100%;
   white-space: pre !important;
+  width: max-content;
   word-break: normal;
 }
 
@@ -495,12 +491,6 @@ li {
 
 .post-content .code-frame.is-nowrap .code-scroll {
   overflow-x: auto;
-}
-
-.post-content .code-frame.is-nowrap pre {
-  max-width: none;
-  min-width: 100%;
-  width: max-content;
 }
 
 .post-content .code-frame code,
