@@ -498,6 +498,7 @@ li {
 }
 
 .post-content .code-frame.is-nowrap pre {
+  max-width: none;
   min-width: 100%;
   width: max-content;
 }
