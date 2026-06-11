@@ -92,7 +92,9 @@ function enhanceCodeBlocks() {
     }
 
     const code = pre.querySelector("code");
-    const existingHighlight = pre.closest(".highlight");
+    const existingHighlight = pre.parentElement
+      ? pre.parentElement.closest(".highlight")
+      : null;
     const frame = existingHighlight || document.createElement("div");
 
     if (!existingHighlight) {

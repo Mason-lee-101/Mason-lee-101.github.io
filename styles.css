@@ -429,6 +429,7 @@ li {
 
 .post-content .code-frame.highlight {
   overflow: hidden !important;
+  padding: 0;
 }
 
 .code-toolbar {
